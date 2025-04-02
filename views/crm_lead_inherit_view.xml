@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<odoo>
+  <record id="inherit_view_crm_form" model="ir.ui.view">
+    <field name="name">crm.lead.form.view.form.inherit</field>
+    <field name="model">crm.lead</field>
+    <field name="inherit_id" ref="crm.crm_lead_view_form"/>
+    <field name="arch" type="xml">
+      <xpath expr="//field[@name='tag_ids']" position="after">
+          <field name="encargado"/>
+          <field name="med_contacto"/>
+      </xpath>
+    </field>
+  </record>
+</odoo>
