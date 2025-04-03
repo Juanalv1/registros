@@ -9,6 +9,7 @@
       <xpath expr="//field[@name='tag_ids']" position="after">
           <field name="encargado"/>
           <field name="med_contacto"/>
+          <field name="deadline_valid"/>
       </xpath>
     </field>
   </record>

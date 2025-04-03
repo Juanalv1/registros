@@ -1,22 +1,23 @@
 <odoo>
     <data>
-        <!-- Crear una categoria -->
+        <!-- CATEGORIA -->
         <record id="crm_category" model="ir.module.category">
             <field name="name">CRM Categoria</field>
         </record>
-        <!-- Crear un grupo -->
-        <record id="usuario_movil" model="res.groups">
-            <field name="name">Usuario Movil</field>
+
+        <!-- GRUPOS -->
+        <record id="user_phone" model="res.groups">
+            <field name="name">Usuario Phone</field>
             <field name="category_id" ref="crm_category"/>
         </record>
 
-        <record id="usuario_email" model="res.groups">
+        <record id="user_email" model="res.groups">
             <field name="name">Usuario Email</field>
             <field name="category_id" ref="crm_category"/>
         </record>
 
-        <record id="admin_movil" model="res.groups">
-            <field name="name">Admin Movil</field>
+        <record id="admin_email" model="res.groups">
+            <field name="name">Admin Email</field>
             <field name="category_id" ref="crm_category"/>
         </record>
 
@@ -25,16 +26,97 @@
             <field name="category_id" ref="crm_category"/>
         </record>
 
-        <record id="crm_email_user_rule" model="ir.rule">
-            <field name="name">See only emails method records</field>
+
+
+        <!-- REGLAS PARA GRUPOS -->
+        <record id="crm_email_admin_rule" model="ir.rule">
+            <field name="name">Email Admin see all records with email contact method</field>
             <field name="model_id" ref="model_crm_lead"/>
-            <field name="domain_force">[('med_contacto', '=', 'phone')]</field>
-            <field name="groups" eval="[(4, ref('registros.admin_movil'))]"/>
+            <field name="domain_force">[('med_contacto', '=', 'email')]</field>
+            <field name="groups" eval="[(4, ref('registros.admin_email'))]"/>
         </record>
 
-        <record id="crm_lead_rule_all" model="ir.rule">
-            <field name="active" eval="False"/>
+        <record id="crm_email_user_rule" model="ir.rule">
+            <field name="name">Email User see records with email contact method and in those he is in charge</field>
+            <field name="model_id" ref="model_crm_lead"/>
+            <field name="domain_force">[('med_contacto', '=', 'email'), ('encargado', '=', user.id)]</field>
+            <field name="groups" eval="[(4, ref('registros.user_email'))]"/>
         </record>
+
+        <record id="crm_phone_admin_rule" model="ir.rule">
+            <field name="name">Phone Admin see all records with Phone contact method</field>
+            <field name="model_id" ref="model_crm_lead"/>
+            <field name="domain_force">[('med_contacto', '=', 'phone')]</field>
+            <field name="groups" eval="[(4, ref('registros.admin_phone'))]"/>
+        </record>
+
+        <record id="crm_phone_user_rule" model="ir.rule">
+            <field name="name">Phone User see records with phone contact method and in those he is in charge</field>
+            <field name="model_id" ref="model_crm_lead"/>
+            <field name="domain_force">[('med_contacto', '=', 'phone'), ('encargado', '=', user.id)]</field>
+            <field name="groups" eval="[(4, ref('registros.user_phone'))]"/>
+        </record>
+
+
+        <!-- Regla que no permite ver cuando el deadline de un record es menor a 2 dias de la fecha actual, solo para los grupos específicos -->
+
+        <record id="crm_global_deadline_rule" model="ir.rule">
+            <field name="name">Global Rule for deadline </field>
+            <field name="model_id" ref="model_crm_lead"/>
+            <field name="domain_force">[('deadline_valid', '=', True)]</field>
+        </record>
+
+
+
+
+        <!-- SOBREESCRIBE REGLA EXISTENTE -->
+
+        <!-- Funcion que busca y sobreescribe el NOUPDATE en false para poder hacer cambios -->
+        <function name="write" model="ir.model.data"> 
+            <function name = "search" model = "ir.model.data"> 
+                <value eval = "[('module', '=', 'crm'), ('name', '=', 'crm_rule_all_lead')] "/> 
+            </function> 
+            <value eval="{'noupdate': False}"/>
+        </function>
+        
+        <!-- Sobreescribe la regla existente cambiando el nombre y colocandola en ACTIVE False -->
+        <record id="crm.crm_rule_all_lead" model="ir.rule">
+            <field name="name">All Leads (Modified to False)</field>
+            <field name="active" eval="False"/>
+            <field ref="crm.model_crm_lead" name="model_id"/>
+        </record>
+
+        <!-- Ahora Utilizamos la function para ponerle el NOUPDATE en True nuevamente -->
+        <function name = "write" model = "ir.model.data"> 
+            <function name = "search" model = "ir.model.data"> 
+                <value eval = "[('module', '=', 'crm'), ('name', '=', 'crm_rule_all_lead')] "/> 
+            </function> 
+            <value eval="{'noupdate': True}"/>
+        </function>
+
+        <!-- Funcion que busca y sobreescribe el NOUPDATE en false para poder hacer cambios -->
+        <function name="write" model="ir.model.data"> 
+            <function name = "search" model = "ir.model.data"> 
+                <value eval = "[('module', '=', 'crm'), ('name', '=', 'crm_rule_personal_lead')] "/> 
+            </function> 
+            <value eval="{'noupdate': False}"/>
+        </function>
+        
+        <!-- Sobreescribe la regla existente cambiando el nombre y colocandola en ACTIVE False -->
+        <record id="crm.crm_rule_personal_lead" model="ir.rule">
+            <field name="name">Personal Lead (Modified to False)</field>
+            <field name="active" eval="False"/>
+            <field ref="crm.model_crm_lead" name="model_id"/>
+        </record>
+
+        <!-- Ahora Utilizamos la function para ponerle el NOUPDATE en True nuevamente -->
+        <function name = "write" model = "ir.model.data"> 
+            <function name = "search" model = "ir.model.data"> 
+                <value eval = "[('module', '=', 'crm'), ('name', '=', 'crm_rule_personal_lead')] "/> 
+            </function> 
+            <value eval="{'noupdate': True}"/>
+        </function>
+
 
     </data>
 </odoo>
